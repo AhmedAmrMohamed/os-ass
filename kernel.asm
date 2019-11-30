@@ -11117,7 +11117,7 @@ int
 sys_getreadcount(void)
 {
 80105630:	55                   	push   %ebp
-	return bf_readcount;
+   return bf_readcount;
 }
 80105631:	a1 bc a5 10 80       	mov    0x8010a5bc,%eax
 {

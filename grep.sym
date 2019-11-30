@@ -14,7 +14,7 @@
 00000000 ulib.c
 00000000 printf.c
 00000630 printint
-00000a68 digits.1038
+00000a68 digits.1040
 00000000 umalloc.c
 00000e00 freep
 00000e04 base
@@ -47,6 +47,7 @@
 00000360 strcmp
 000005fa dup
 00000e20 buf
+00000622 getreadcount
 000004c0 stat
 00000e00 _edata
 00001220 _end

@@ -1956,10 +1956,12 @@ SYSCALL(uptime)
      daa:	b8 0e 00 00 00       	mov    $0xe,%eax
      daf:	cd 40                	int    $0x40
      db1:	c3                   	ret    
-     db2:	66 90                	xchg   %ax,%ax
-     db4:	66 90                	xchg   %ax,%ax
-     db6:	66 90                	xchg   %ax,%ax
-     db8:	66 90                	xchg   %ax,%ax
+
+00000db2 <getreadcount>:
+SYSCALL(getreadcount)
+     db2:	b8 16 00 00 00       	mov    $0x16,%eax
+     db7:	cd 40                	int    $0x40
+     db9:	c3                   	ret    
      dba:	66 90                	xchg   %ax,%ax
      dbc:	66 90                	xchg   %ax,%ax
      dbe:	66 90                	xchg   %ax,%ax
