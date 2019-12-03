@@ -7,6 +7,10 @@
 #include "x86.h"
 #include "elf.h"
 
+#include "lottery.h"
+char* dmsgs[1000];
+int dcount = 0;
+
 int
 exec(char *path, char **argv)
 {
@@ -18,6 +22,8 @@ exec(char *path, char **argv)
   struct proghdr ph;
   pde_t *pgdir, *oldpgdir;
   struct proc *curproc = myproc();
+
+  bf_setTickets(curproc->pid, 1);
 
   begin_op();
 

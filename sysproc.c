@@ -6,8 +6,11 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "pstat.h"
 
 #include "bf_shared.h"
+#include "bf_dmsg.h"
+#include "lottery.h"
 
 int
 sys_fork(void)
@@ -96,4 +99,10 @@ int
 sys_getreadcount(void)
 {
    return bf_readcount;
+}
+
+int
+sys_settickets(int number)
+{
+	return 	bf_setTickets(myproc()->pid , number);
 }

@@ -7,12 +7,15 @@
 #include "proc.h"
 #include "spinlock.h"
 
+#include "pstat.h"
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
 } ptable;
 
 static struct proc *initproc;
+struct pstat gpstat;
 
 int nextpid = 1;
 extern void forkret(void);
