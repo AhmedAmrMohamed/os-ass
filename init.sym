@@ -15,7 +15,7 @@
 00000000 ulib.c
 00000000 printf.c
 00000400 printint
-00000850 digits.1042
+00000850 digits.1044
 00000000 umalloc.c
 00000b00 freep
 00000b04 base
@@ -32,15 +32,16 @@
 00000362 write
 0000039a fstat
 00000372 kill
+000003f2 gettickets
 000003b2 chdir
 0000037a exec
 0000034a wait
 0000035a read
 00000392 unlink
+000003ea setTickets
 0000033a fork
 000003ca sbrk
 000003da uptime
-000003ea settickets
 00000b00 __bss_start
 000001a0 memset
 00000000 main

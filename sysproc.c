@@ -95,14 +95,21 @@ sys_uptime(void)
   return xticks;
 }
 
+/*int*/
+/*sys_gettickets(void)*/
+/*{*/
+	/*return 1;*/
+   /*return bf_getTickets(myproc()->pid);*/
+/*}*/
+
 int
 sys_getreadcount(void)
 {
    return bf_readcount;
 }
 
-int
-sys_settickets(int number)
-{
-	return 	bf_setTickets(myproc()->pid , number);
-}
+/*int*/
+/*sys_settickets(int number)*/
+/*{*/
+	/*return 	bf_setTickets(myproc()->pid , number);*/
+/*}*/

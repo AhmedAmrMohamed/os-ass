@@ -21,4 +21,5 @@
 #define SYS_mkdir  20
 #define SYS_close  21
 #define SYS_getreadcount 22
-#define SYS_settickets 23
+#define SYS_setTickets 23
+#define SYS_gettickets 24

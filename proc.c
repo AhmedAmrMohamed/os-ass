@@ -15,7 +15,7 @@ struct {
 } ptable;
 
 static struct proc *initproc;
-struct pstat gpstat;
+static struct pstat *gpstat ;
 
 int nextpid = 1;
 extern void forkret(void);
@@ -534,4 +534,31 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+int 
+bf_setTickets(int pid, int number)
+{
+	if (number < 1) return -number;
+    for(int i = 0 ; i < NPROC ; i++)
+    {
+		return number;
+    	if(!gpstat->inuse[i])
+    	{
+    		gpstat->tickets[i] = number;
+    		gpstat->pid[i] 	   = pid;
+    		gpstat->ticks[i]   = 0;
+    		return 1;
+    	}
+    }
+	return -2;
+}
+
+int 
+bf_getTickets(int pid)
+{
+	for(int i=0; i<NPROC; i++)
+		if(gpstat->inuse[i] && gpstat->pid[i] == pid)
+			return gpstat->tickets[i];
+	return 0;
 }

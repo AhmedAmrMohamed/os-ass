@@ -446,3 +446,11 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+int
+sys_setTickets(void)
+{
+	int number;
+	argint(0,&number);
+	return number;
+}

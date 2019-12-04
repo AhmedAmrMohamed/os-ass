@@ -603,15 +603,17 @@ SYSCALL(getreadcount)
  377:	cd 40                	int    $0x40
  379:	c3                   	ret    
 
-0000037a <settickets>:
-SYSCALL(settickets)
+0000037a <setTickets>:
+SYSCALL(setTickets)
  37a:	b8 17 00 00 00       	mov    $0x17,%eax
  37f:	cd 40                	int    $0x40
  381:	c3                   	ret    
- 382:	66 90                	xchg   %ax,%ax
- 384:	66 90                	xchg   %ax,%ax
- 386:	66 90                	xchg   %ax,%ax
- 388:	66 90                	xchg   %ax,%ax
+
+00000382 <gettickets>:
+SYSCALL(gettickets)
+ 382:	b8 18 00 00 00       	mov    $0x18,%eax
+ 387:	cd 40                	int    $0x40
+ 389:	c3                   	ret    
  38a:	66 90                	xchg   %ax,%ax
  38c:	66 90                	xchg   %ax,%ax
  38e:	66 90                	xchg   %ax,%ax
