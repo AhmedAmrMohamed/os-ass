@@ -16,8 +16,11 @@
 #include "file.h"
 #include "fcntl.h"
 
+#include "pstat.h"
 
+struct pstat gpstat;
 int bf_readcount = 0;
+int gpstatinit  = 0;
 
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
@@ -447,10 +450,30 @@ sys_pipe(void)
   return 0;
 }
 
+
 int
 sys_setTickets(void)
 {
-	int number;
+	
+	int number , pid;
 	argint(0,&number);
-	return number;
+	struct proc *cp = myproc();
+	pid = cp->pid;
+	if(!gpstatinit)
+		memset(gpstat.inuse, 0 , sizeof(gpstat.inuse));
+	gpstatinit = 1;
+	if (number < 1) return -number;
+	for(int i = 0 ; i < NPROC ; i++)
+	{
+		if(!gpstat.inuse[i])
+		{
+			gpstat.inuse[i]   = 1;
+			gpstat.tickets[i] = number;
+			gpstat.pid[i] 	   = pid;
+			gpstat.ticks[i]   = 0;
+			return 1;
+		}
+	}
+	return -2;
 }
+	

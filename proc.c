@@ -536,23 +536,6 @@ procdump(void)
   }
 }
 
-int 
-bf_setTickets(int pid, int number)
-{
-	if (number < 1) return -number;
-    for(int i = 0 ; i < NPROC ; i++)
-    {
-		return number;
-    	if(!gpstat->inuse[i])
-    	{
-    		gpstat->tickets[i] = number;
-    		gpstat->pid[i] 	   = pid;
-    		gpstat->ticks[i]   = 0;
-    		return 1;
-    	}
-    }
-	return -2;
-}
 
 int 
 bf_getTickets(int pid)
