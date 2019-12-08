@@ -97,3 +97,12 @@ sys_getreadcount(void)
 {
    return bf_readcount;
 }
+
+int
+sys_settickets(void)
+{
+	int number,pid;
+	argint(0,&number);
+	pid = myproc()->pid;
+	return mysettickets(number,pid);
+}

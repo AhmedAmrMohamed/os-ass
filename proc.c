@@ -6,6 +6,9 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "pstat.h"
+
+
 
 struct {
   struct spinlock lock;
@@ -13,7 +16,8 @@ struct {
 } ptable;
 
 static struct proc *initproc;
-
+static struct pstat *gpstat;
+int pti = 0;
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
@@ -77,7 +81,6 @@ allocproc(void)
   char *sp;
 
   acquire(&ptable.lock);
-
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == UNUSED)
       goto found;
@@ -88,6 +91,9 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  if(pti)
+	  mysettickets(1,nextpid);
+  
 
   release(&ptable.lock);
 
@@ -531,4 +537,24 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+int mysettickets(int number,int pid)
+{
+	/*if(!pti)*/
+		/*for(int i=3;i<NPROC;i++)*/
+			/*gpstat->inuse[i] =0;*/
+	/*pti=1;*/
+	if(number < 1) return -1;
+	for(int i=0;i<NPROC;i++)
+		if(!gpstat->inuse[i])
+			{
+				gpstat->inuse[i]  = 1;
+				gpstat->pid[i]    = pid;
+				gpstat->tickets[i]= number;
+				gpstat->ticks[i]  = 0;
+				return gpstat->pid[i];
+			}
+	return -2;
+
 }
