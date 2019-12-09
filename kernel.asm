@@ -7301,7 +7301,7 @@ myproc(void) {
 801039ae:	e8 4d fc ff ff       	call   80103600 <allocproc>
 801039b3:	85 c0                	test   %eax,%eax
 801039b5:	89 45 e4             	mov    %eax,-0x1c(%ebp)
-801039b8:	0f 84 b7 00 00 00    	je     80103a75 <fork+0xe5>
+801039b8:	0f 84 bf 00 00 00    	je     80103a7d <fork+0xed>
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
 801039be:	83 ec 08             	sub    $0x8,%esp
 801039c1:	ff 33                	pushl  (%ebx)
@@ -7311,95 +7311,99 @@ myproc(void) {
 801039cd:	83 c4 10             	add    $0x10,%esp
 801039d0:	85 c0                	test   %eax,%eax
 801039d2:	89 47 04             	mov    %eax,0x4(%edi)
-801039d5:	0f 84 a1 00 00 00    	je     80103a7c <fork+0xec>
+801039d5:	0f 84 a9 00 00 00    	je     80103a84 <fork+0xf4>
   np->sz = curproc->sz;
 801039db:	8b 03                	mov    (%ebx),%eax
-801039dd:	8b 4d e4             	mov    -0x1c(%ebp),%ecx
-801039e0:	89 01                	mov    %eax,(%ecx)
-  np->parent = curproc;
-801039e2:	89 59 14             	mov    %ebx,0x14(%ecx)
-801039e5:	89 c8                	mov    %ecx,%eax
+801039dd:	8b 55 e4             	mov    -0x1c(%ebp),%edx
   *np->tf = *curproc->tf;
-801039e7:	8b 79 18             	mov    0x18(%ecx),%edi
-801039ea:	8b 73 18             	mov    0x18(%ebx),%esi
-801039ed:	b9 13 00 00 00       	mov    $0x13,%ecx
-801039f2:	f3 a5                	rep movsl %ds:(%esi),%es:(%edi)
+801039e0:	b9 13 00 00 00       	mov    $0x13,%ecx
+  np->sz = curproc->sz;
+801039e5:	89 02                	mov    %eax,(%edx)
+  np->parent = curproc;
+801039e7:	89 5a 14             	mov    %ebx,0x14(%edx)
+  *np->tf = *curproc->tf;
+801039ea:	8b 7a 18             	mov    0x18(%edx),%edi
+801039ed:	8b 73 18             	mov    0x18(%ebx),%esi
+801039f0:	f3 a5                	rep movsl %ds:(%esi),%es:(%edi)
   for(i = 0; i < NOFILE; i++)
-801039f4:	31 f6                	xor    %esi,%esi
+801039f2:	31 f6                	xor    %esi,%esi
+  np->tickets = curproc->tickets;
+801039f4:	8b 43 7c             	mov    0x7c(%ebx),%eax
+801039f7:	89 42 7c             	mov    %eax,0x7c(%edx)
   np->tf->eax = 0;
-801039f6:	8b 40 18             	mov    0x18(%eax),%eax
-801039f9:	c7 40 1c 00 00 00 00 	movl   $0x0,0x1c(%eax)
+801039fa:	8b 42 18             	mov    0x18(%edx),%eax
+801039fd:	c7 40 1c 00 00 00 00 	movl   $0x0,0x1c(%eax)
+80103a04:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
     if(curproc->ofile[i])
-80103a00:	8b 44 b3 28          	mov    0x28(%ebx,%esi,4),%eax
-80103a04:	85 c0                	test   %eax,%eax
-80103a06:	74 13                	je     80103a1b <fork+0x8b>
+80103a08:	8b 44 b3 28          	mov    0x28(%ebx,%esi,4),%eax
+80103a0c:	85 c0                	test   %eax,%eax
+80103a0e:	74 13                	je     80103a23 <fork+0x93>
       np->ofile[i] = filedup(curproc->ofile[i]);
-80103a08:	83 ec 0c             	sub    $0xc,%esp
-80103a0b:	50                   	push   %eax
-80103a0c:	e8 df d3 ff ff       	call   80100df0 <filedup>
-80103a11:	8b 55 e4             	mov    -0x1c(%ebp),%edx
-80103a14:	83 c4 10             	add    $0x10,%esp
-80103a17:	89 44 b2 28          	mov    %eax,0x28(%edx,%esi,4)
+80103a10:	83 ec 0c             	sub    $0xc,%esp
+80103a13:	50                   	push   %eax
+80103a14:	e8 d7 d3 ff ff       	call   80100df0 <filedup>
+80103a19:	8b 55 e4             	mov    -0x1c(%ebp),%edx
+80103a1c:	83 c4 10             	add    $0x10,%esp
+80103a1f:	89 44 b2 28          	mov    %eax,0x28(%edx,%esi,4)
   for(i = 0; i < NOFILE; i++)
-80103a1b:	83 c6 01             	add    $0x1,%esi
-80103a1e:	83 fe 10             	cmp    $0x10,%esi
-80103a21:	75 dd                	jne    80103a00 <fork+0x70>
+80103a23:	83 c6 01             	add    $0x1,%esi
+80103a26:	83 fe 10             	cmp    $0x10,%esi
+80103a29:	75 dd                	jne    80103a08 <fork+0x78>
   np->cwd = idup(curproc->cwd);
-80103a23:	83 ec 0c             	sub    $0xc,%esp
-80103a26:	ff 73 68             	pushl  0x68(%ebx)
+80103a2b:	83 ec 0c             	sub    $0xc,%esp
+80103a2e:	ff 73 68             	pushl  0x68(%ebx)
   safestrcpy(np->name, curproc->name, sizeof(curproc->name));
-80103a29:	83 c3 6c             	add    $0x6c,%ebx
+80103a31:	83 c3 6c             	add    $0x6c,%ebx
   np->cwd = idup(curproc->cwd);
-80103a2c:	e8 1f dc ff ff       	call   80101650 <idup>
-80103a31:	8b 7d e4             	mov    -0x1c(%ebp),%edi
+80103a34:	e8 17 dc ff ff       	call   80101650 <idup>
+80103a39:	8b 7d e4             	mov    -0x1c(%ebp),%edi
   safestrcpy(np->name, curproc->name, sizeof(curproc->name));
-80103a34:	83 c4 0c             	add    $0xc,%esp
+80103a3c:	83 c4 0c             	add    $0xc,%esp
   np->cwd = idup(curproc->cwd);
-80103a37:	89 47 68             	mov    %eax,0x68(%edi)
+80103a3f:	89 47 68             	mov    %eax,0x68(%edi)
   safestrcpy(np->name, curproc->name, sizeof(curproc->name));
-80103a3a:	8d 47 6c             	lea    0x6c(%edi),%eax
-80103a3d:	6a 10                	push   $0x10
-80103a3f:	53                   	push   %ebx
-80103a40:	50                   	push   %eax
-80103a41:	e8 6a 0c 00 00       	call   801046b0 <safestrcpy>
+80103a42:	8d 47 6c             	lea    0x6c(%edi),%eax
+80103a45:	6a 10                	push   $0x10
+80103a47:	53                   	push   %ebx
+80103a48:	50                   	push   %eax
+80103a49:	e8 62 0c 00 00       	call   801046b0 <safestrcpy>
   pid = np->pid;
-80103a46:	8b 5f 10             	mov    0x10(%edi),%ebx
+80103a4e:	8b 5f 10             	mov    0x10(%edi),%ebx
   acquire(&ptable.lock);
-80103a49:	c7 04 24 40 2d 11 80 	movl   $0x80112d40,(%esp)
-80103a50:	e8 6b 09 00 00       	call   801043c0 <acquire>
+80103a51:	c7 04 24 40 2d 11 80 	movl   $0x80112d40,(%esp)
+80103a58:	e8 63 09 00 00       	call   801043c0 <acquire>
   np->state = RUNNABLE;
-80103a55:	c7 47 0c 03 00 00 00 	movl   $0x3,0xc(%edi)
+80103a5d:	c7 47 0c 03 00 00 00 	movl   $0x3,0xc(%edi)
   release(&ptable.lock);
-80103a5c:	c7 04 24 40 2d 11 80 	movl   $0x80112d40,(%esp)
-80103a63:	e8 18 0a 00 00       	call   80104480 <release>
+80103a64:	c7 04 24 40 2d 11 80 	movl   $0x80112d40,(%esp)
+80103a6b:	e8 10 0a 00 00       	call   80104480 <release>
   return pid;
-80103a68:	83 c4 10             	add    $0x10,%esp
+80103a70:	83 c4 10             	add    $0x10,%esp
 }
-80103a6b:	8d 65 f4             	lea    -0xc(%ebp),%esp
-80103a6e:	89 d8                	mov    %ebx,%eax
-80103a70:	5b                   	pop    %ebx
-80103a71:	5e                   	pop    %esi
-80103a72:	5f                   	pop    %edi
-80103a73:	5d                   	pop    %ebp
-80103a74:	c3                   	ret    
+80103a73:	8d 65 f4             	lea    -0xc(%ebp),%esp
+80103a76:	89 d8                	mov    %ebx,%eax
+80103a78:	5b                   	pop    %ebx
+80103a79:	5e                   	pop    %esi
+80103a7a:	5f                   	pop    %edi
+80103a7b:	5d                   	pop    %ebp
+80103a7c:	c3                   	ret    
     return -1;
-80103a75:	bb ff ff ff ff       	mov    $0xffffffff,%ebx
-80103a7a:	eb ef                	jmp    80103a6b <fork+0xdb>
+80103a7d:	bb ff ff ff ff       	mov    $0xffffffff,%ebx
+80103a82:	eb ef                	jmp    80103a73 <fork+0xe3>
     kfree(np->kstack);
-80103a7c:	8b 5d e4             	mov    -0x1c(%ebp),%ebx
-80103a7f:	83 ec 0c             	sub    $0xc,%esp
-80103a82:	ff 73 08             	pushl  0x8(%ebx)
-80103a85:	e8 86 e8 ff ff       	call   80102310 <kfree>
+80103a84:	8b 5d e4             	mov    -0x1c(%ebp),%ebx
+80103a87:	83 ec 0c             	sub    $0xc,%esp
+80103a8a:	ff 73 08             	pushl  0x8(%ebx)
+80103a8d:	e8 7e e8 ff ff       	call   80102310 <kfree>
     np->kstack = 0;
-80103a8a:	c7 43 08 00 00 00 00 	movl   $0x0,0x8(%ebx)
+80103a92:	c7 43 08 00 00 00 00 	movl   $0x0,0x8(%ebx)
     np->state = UNUSED;
-80103a91:	c7 43 0c 00 00 00 00 	movl   $0x0,0xc(%ebx)
+80103a99:	c7 43 0c 00 00 00 00 	movl   $0x0,0xc(%ebx)
     return -1;
-80103a98:	83 c4 10             	add    $0x10,%esp
-80103a9b:	bb ff ff ff ff       	mov    $0xffffffff,%ebx
-80103aa0:	eb c9                	jmp    80103a6b <fork+0xdb>
-80103aa2:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-80103aa9:	8d bc 27 00 00 00 00 	lea    0x0(%edi,%eiz,1),%edi
+80103aa0:	83 c4 10             	add    $0x10,%esp
+80103aa3:	bb ff ff ff ff       	mov    $0xffffffff,%ebx
+80103aa8:	eb c9                	jmp    80103a73 <fork+0xe3>
+80103aaa:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
 
 80103ab0 <scheduler>:
 {
