@@ -14,7 +14,7 @@
 00000000 ulib.c
 00000000 printf.c
 00000450 printint
-00000874 digits.1042
+00000874 digits.1043
 00000000 umalloc.c
 00000b24 freep
 00000b28 base
@@ -30,6 +30,7 @@
 000003b2 write
 000003ea fstat
 000003c2 kill
+00000442 gettickets
 00000402 chdir
 000003ca exec
 0000039a wait

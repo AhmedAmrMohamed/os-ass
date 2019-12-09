@@ -674,10 +674,12 @@ SYSCALL(settickets)
  40a:	b8 17 00 00 00       	mov    $0x17,%eax
  40f:	cd 40                	int    $0x40
  411:	c3                   	ret    
- 412:	66 90                	xchg   %ax,%ax
- 414:	66 90                	xchg   %ax,%ax
- 416:	66 90                	xchg   %ax,%ax
- 418:	66 90                	xchg   %ax,%ax
+
+00000412 <gettickets>:
+SYSCALL(gettickets)
+ 412:	b8 18 00 00 00       	mov    $0x18,%eax
+ 417:	cd 40                	int    $0x40
+ 419:	c3                   	ret    
  41a:	66 90                	xchg   %ax,%ax
  41c:	66 90                	xchg   %ax,%ax
  41e:	66 90                	xchg   %ax,%ax

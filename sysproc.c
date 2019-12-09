@@ -106,3 +106,9 @@ sys_settickets(void)
 	pid = myproc()->pid;
 	return mysettickets(number,pid);
 }
+
+int
+sys_gettickets(void)
+{
+	return myproc()->tickets;
+}

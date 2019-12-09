@@ -12,11 +12,11 @@
 00000000 .debug_loc
 00000000 .debug_ranges
 00000000 usertests.c
-00005e20 args.1406
+00005e20 args.1407
 00000000 ulib.c
 00000000 printf.c
 00003960 printint
-000054f8 digits.1042
+000054f8 digits.1043
 00000000 umalloc.c
 00005ea0 freep
 00005ea4 base
@@ -52,6 +52,7 @@
 000038d2 kill
 00003150 validatetest
 000027e0 rmdot
+00003952 gettickets
 00003912 chdir
 000009c0 exectest
 000038da exec
