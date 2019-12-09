@@ -16,8 +16,6 @@ struct {
 } ptable;
 
 static struct proc *initproc;
-static struct pstat *gpstat;
-int pti = 0;
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
@@ -91,7 +89,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  mysettickets(1,nextpid);
+  p->tickets = 1;
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -538,20 +536,17 @@ procdump(void)
 
 int mysettickets(int number,int pid)
 {
-	/*if(!pti)*/
-		/*for(int i=3;i<NPROC;i++)*/
-			/*gpstat->inuse[i] =0;*/
-	/*pti=1;*/
-	if(number < 1) return -1;
-	for(int i=0;i<NPROC;i++)
-		if(!gpstat->inuse[i])
-			{
-				gpstat->inuse[i]  = 1;
-				gpstat->pid[i]    = pid;
-				gpstat->tickets[i]= number;
-				gpstat->ticks[i]  = 0;
-				return gpstat->pid[i];
-			}
-	return -2;
-
+	
+  	struct proc *p;
+	acquire(&ptable.lock);
+  	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+		if(p->pid == pid) 
+		{
+			p->tickets = number;
+			release(&ptable.lock);
+			return p->pid;
+		}
+	release(&ptable.lock);
+	return -1;
+		
 }

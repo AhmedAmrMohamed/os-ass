@@ -4,8 +4,7 @@
 int main(void)
 { 
 	/*printf(1,"st : %d\n",getreadcount());*/
-	/*printf(1,"%d %d\n",getpid(),settickets(5));*/
-	settickets(4);
+	printf(1,"%d %d\n",getpid(),settickets(5));
     exit();
 }
 
