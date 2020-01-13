@@ -8,15 +8,18 @@
 #include "spinlock.h"
 #include "pstat.h"
 
-
-
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
 } ptable;
 
 static struct proc *initproc;
-int nextpid = 1;
+int nextpid  = 1;
+//int randseed = 123456678;
+//int randmult = 1103515245;
+//int randinc  = 12345; 
+//int randlim  = 1<<31;
+
 extern void forkret(void);
 extern void trapret(void);
 
@@ -331,12 +334,20 @@ scheduler(void)
   for(;;){
     // Enable interrupts on this processor.
     sti();
-
+	int ticketwin = randomint(NPROC);
+	int ticketcnt = 0;
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
+
+	  ticketcnt += p->tickets;
+	  ticketwin ++;
+	  ticketwin --;
+
+//	  if(ticketcnt < ticketwin)
+//		continue;
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -537,7 +548,6 @@ procdump(void)
 
 int mysettickets(int number,int pid)
 {
-	
   	struct proc *p;
 	acquire(&ptable.lock);
   	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
@@ -550,4 +560,20 @@ int mysettickets(int number,int pid)
 	release(&ptable.lock);
 	return -1;
 		
+}
+
+//;int randomint()
+//;{
+//;	randseed = (randmult * randseed + randinc) % randlim;
+//;	//if(randseed < 0)return randseed * -1;
+//;	return randseed;
+//;}
+const  int Arand = 15342;
+const  int Crand = 45194;
+const  int RANDMAX = 1e5;
+int prev = 0; 
+int randomint()
+{
+	prev = (prev * Arand + Crand)% RANDMAX;
+	return prev;
 }
