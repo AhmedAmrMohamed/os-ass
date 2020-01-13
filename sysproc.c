@@ -110,6 +110,5 @@ sys_settickets(void)
 int
 sys_gettickets(void)
 {
-	return randomint();
 	return myproc()->tickets;
 }
