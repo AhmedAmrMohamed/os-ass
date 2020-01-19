@@ -16,9 +16,20 @@ struct {
 
 static struct proc *initproc;
 int nextpid  = 1;
-int totaltickets = 10;
+int totaltickets = 0;
 extern void forkret(void);
 extern void trapret(void);
+
+// generate a rounom number [0:totaltickets]
+int prev = 0;
+int
+randomint(void)
+{
+	const  int Arand = 15342;
+	const  int Crand = 45194;
+	prev = (prev * Arand + Crand)% totaltickets;
+	return prev;
+}
 
 static void wakeup1(void *chan);
 
@@ -90,7 +101,9 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
   p->tickets = 1;
+  totaltickets++;
   release(&ptable.lock);
+  cprintf("pid %d, tics %d, tk %d\n",p->pid,p->tickets,totaltickets);
 
   // Allocate kernel stack.
   if((p->kstack = kalloc()) == 0){
@@ -200,7 +213,6 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
-  np->tickets = curproc->tickets;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -215,6 +227,8 @@ fork(void)
   pid = np->pid;
 
   acquire(&ptable.lock);
+  
+  np->tickets = curproc->tickets;
 
   np->state = RUNNABLE;
 
@@ -244,6 +258,10 @@ exit(void)
     }
   }
 
+  //remove this proc tickets
+  totaltickets -= 1+(curproc->tickets);
+  cprintf("*pid %d, tics %d,tk %d\n",curproc->pid,curproc->tickets,totaltickets);
+
   begin_op();
   iput(curproc->cwd);
   end_op();
@@ -262,9 +280,6 @@ exit(void)
         wakeup1(initproc);
     }
   }
-  //remove this proc tickets
-  totaltickets -= curproc->tickets;
-
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
   sched();
@@ -326,44 +341,51 @@ wait(void)
 void
 scheduler(void)
 {
-  struct proc *p;
-  struct cpu *c = mycpu();
-  c->proc = 0;
   
-  for(;;){
-    // Enable interrupts on this processor.
-    sti();
-	int ticketwin = randomint();
-	int ticketcnt = 0;
-    // Loop over process table looking for process to run.
-    acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
+	struct proc *p;
+    struct cpu *c = mycpu();
+    c->proc = 0;
+	acquire(&ptable.lock);
+	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+		if(p->state == RUNNABLE)
+			totaltickets++;
+	}
+	release(&ptable.lock);
+	cprintf("tk : %d\n",totaltickets);
+	  
+	  for(;;)
+	  {
+		 int ticketwin = randomint();
+		 int ticketcnt = 0;
+		 //Enable interrupts on this processor.
+		 sti();
+		 acquire(&ptable.lock);
+		 for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+		 {
+			 //cprintf("what\n");
+		 	 if(p->state != RUNNABLE)
+			 	continue; 
 
-	  ticketcnt += p->tickets;
+			ticketcnt += p->tickets;
 
-	  if(ticketcnt < ticketwin)
-		continue;
-
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
-
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
-
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      c->proc = 0;
-    }
-    release(&ptable.lock);
-
-  }
-}
+			cprintf("tcnt %d, twn %d, tk %d\n",ticketcnt,
+					ticketwin, totaltickets);
+			
+			if(ticketcnt < ticketwin && totaltickets > 3)
+				continue;
+		    c->proc = p;
+		    switchuvm(p);
+		    p->state = RUNNING;
+		    swtch(&(c->scheduler), p->context);
+		    switchkvm();
+		
+		    // Process is done running for now.
+            // It should have changed its p->state before coming back.
+           c->proc = 0;
+         }
+     	release(&ptable.lock);
+	  }
+}	  
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
@@ -560,11 +582,8 @@ int mysettickets(int number,int pid)
 		
 }
 
-const  int Arand = 15342;
-const  int Crand = 45194;
-int prev = 0; 
-int randomint()
-{
-	prev = (prev * Arand + Crand)% totaltickets;
-	return prev;
-}
+
+//test function that return total number of tickets;
+int
+gettotaltickets()
+{ return totaltickets;}
