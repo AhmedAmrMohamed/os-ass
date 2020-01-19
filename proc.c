@@ -21,14 +21,14 @@ extern void forkret(void);
 extern void trapret(void);
 
 // generate a rounom number [0:totaltickets]
-int prev = 0;
+long long prev = 1;
 int
 randomint(void)
 {
-	const  int Arand = 15342;
-	const  int Crand = 45194;
-	prev = (prev * Arand + Crand)% totaltickets;
-	return prev;
+	prev ^= (prev <<21);
+	prev ^= (prev >>35);
+	prev ^= (prev <<4);
+	return ((int) prev) % (totaltickets);
 }
 
 static void wakeup1(void *chan);
@@ -103,7 +103,7 @@ found:
   p->tickets = 1;
   totaltickets++;
   release(&ptable.lock);
-  cprintf("pid %d, tics %d, tk %d\n",p->pid,p->tickets,totaltickets);
+  //cprintf("pid %d, tics %d, tk %d\n",p->pid,p->tickets,totaltickets);
 
   // Allocate kernel stack.
   if((p->kstack = kalloc()) == 0){
@@ -260,7 +260,7 @@ exit(void)
 
   //remove this proc tickets
   totaltickets -= 1+(curproc->tickets);
-  cprintf("*pid %d, tics %d,tk %d\n",curproc->pid,curproc->tickets,totaltickets);
+  //cprintf("*pid %d, tics %d,tk %d\n",curproc->pid,curproc->tickets,totaltickets);
 
   begin_op();
   iput(curproc->cwd);
@@ -351,25 +351,26 @@ scheduler(void)
 			totaltickets++;
 	}
 	release(&ptable.lock);
-	cprintf("tk : %d\n",totaltickets);
+//	cprintf("tk : %d\n",totaltickets);
 	  
 	  for(;;)
 	  {
-		 int ticketwin = randomint();
-		 int ticketcnt = 0;
 		 //Enable interrupts on this processor.
 		 sti();
 		 acquire(&ptable.lock);
+	     int ticketwin = randomint();
+		 int ticketcnt = 0;
+	//	cprintf("tt %d tw %d\n",totaltickets,randomint());
 		 for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
 		 {
-			 //cprintf("what\n");
+	//		cprintf("what\n");
 		 	 if(p->state != RUNNABLE)
 			 	continue; 
 
 			ticketcnt += p->tickets;
 
-			cprintf("tcnt %d, twn %d, tk %d\n",ticketcnt,
-					ticketwin, totaltickets);
+//			cprintf("tcnt %d, twn %d, tk %d\n",ticketcnt,
+//					ticketwin, totaltickets);
 			
 			if(ticketcnt < ticketwin && totaltickets > 3)
 				continue;
@@ -559,7 +560,7 @@ procdump(void)
     if(p->state == SLEEPING){
       getcallerpcs((uint*)p->context->ebp+2, pc);
       for(i=0; i<10 && pc[i] != 0; i++)
-        cprintf(" %p", pc[i]);
+      cprintf(" %p", pc[i]);
     }
     cprintf("\n");
   }
