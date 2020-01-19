@@ -4228,11 +4228,21 @@ Disassembly of section .text:
     364f:	90                   	nop
 
 00003650 <strcpy>:
+#include "user.h"
+#include "x86.h"
+
+char*
+strcpy(char *s, const char *t)
+{
     3650:	55                   	push   %ebp
     3651:	89 e5                	mov    %esp,%ebp
     3653:	53                   	push   %ebx
     3654:	8b 45 08             	mov    0x8(%ebp),%eax
     3657:	8b 4d 0c             	mov    0xc(%ebp),%ecx
+  char *os;
+
+  os = s;
+  while((*s++ = *t++) != 0)
     365a:	89 c2                	mov    %eax,%edx
     365c:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
     3660:	83 c1 01             	add    $0x1,%ecx
@@ -4241,6 +4251,9 @@ Disassembly of section .text:
     366a:	84 db                	test   %bl,%bl
     366c:	88 5a ff             	mov    %bl,-0x1(%edx)
     366f:	75 ef                	jne    3660 <strcpy+0x10>
+    ;
+  return os;
+}
     3671:	5b                   	pop    %ebx
     3672:	5d                   	pop    %ebp
     3673:	c3                   	ret    
@@ -4248,11 +4261,16 @@ Disassembly of section .text:
     367a:	8d bf 00 00 00 00    	lea    0x0(%edi),%edi
 
 00003680 <strcmp>:
+
+int
+strcmp(const char *p, const char *q)
+{
     3680:	55                   	push   %ebp
     3681:	89 e5                	mov    %esp,%ebp
     3683:	53                   	push   %ebx
     3684:	8b 55 08             	mov    0x8(%ebp),%edx
     3687:	8b 4d 0c             	mov    0xc(%ebp),%ecx
+  while(*p && *p == *q)
     368a:	0f b6 02             	movzbl (%edx),%eax
     368d:	0f b6 19             	movzbl (%ecx),%ebx
     3690:	84 c0                	test   %al,%al
@@ -4260,21 +4278,29 @@ Disassembly of section .text:
     3694:	eb 2a                	jmp    36c0 <strcmp+0x40>
     3696:	8d 76 00             	lea    0x0(%esi),%esi
     3699:	8d bc 27 00 00 00 00 	lea    0x0(%edi,%eiz,1),%edi
+    p++, q++;
     36a0:	83 c2 01             	add    $0x1,%edx
+  while(*p && *p == *q)
     36a3:	0f b6 02             	movzbl (%edx),%eax
+    p++, q++;
     36a6:	83 c1 01             	add    $0x1,%ecx
     36a9:	0f b6 19             	movzbl (%ecx),%ebx
+  while(*p && *p == *q)
     36ac:	84 c0                	test   %al,%al
     36ae:	74 10                	je     36c0 <strcmp+0x40>
     36b0:	38 d8                	cmp    %bl,%al
     36b2:	74 ec                	je     36a0 <strcmp+0x20>
+  return (uchar)*p - (uchar)*q;
     36b4:	29 d8                	sub    %ebx,%eax
+}
     36b6:	5b                   	pop    %ebx
     36b7:	5d                   	pop    %ebp
     36b8:	c3                   	ret    
     36b9:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
     36c0:	31 c0                	xor    %eax,%eax
+  return (uchar)*p - (uchar)*q;
     36c2:	29 d8                	sub    %ebx,%eax
+}
     36c4:	5b                   	pop    %ebx
     36c5:	5d                   	pop    %ebp
     36c6:	c3                   	ret    
@@ -4282,9 +4308,16 @@ Disassembly of section .text:
     36c9:	8d bc 27 00 00 00 00 	lea    0x0(%edi,%eiz,1),%edi
 
 000036d0 <strlen>:
+
+uint
+strlen(const char *s)
+{
     36d0:	55                   	push   %ebp
     36d1:	89 e5                	mov    %esp,%ebp
     36d3:	8b 4d 08             	mov    0x8(%ebp),%ecx
+  int n;
+
+  for(n = 0; s[n]; n++)
     36d6:	80 39 00             	cmpb   $0x0,(%ecx)
     36d9:	74 15                	je     36f0 <strlen+0x20>
     36db:	31 d2                	xor    %edx,%edx
@@ -4293,25 +4326,43 @@ Disassembly of section .text:
     36e3:	80 3c 11 00          	cmpb   $0x0,(%ecx,%edx,1)
     36e7:	89 d0                	mov    %edx,%eax
     36e9:	75 f5                	jne    36e0 <strlen+0x10>
+    ;
+  return n;
+}
     36eb:	5d                   	pop    %ebp
     36ec:	c3                   	ret    
     36ed:	8d 76 00             	lea    0x0(%esi),%esi
+  for(n = 0; s[n]; n++)
     36f0:	31 c0                	xor    %eax,%eax
+}
     36f2:	5d                   	pop    %ebp
     36f3:	c3                   	ret    
     36f4:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
     36fa:	8d bf 00 00 00 00    	lea    0x0(%edi),%edi
 
 00003700 <memset>:
+
+void*
+memset(void *dst, int c, uint n)
+{
     3700:	55                   	push   %ebp
     3701:	89 e5                	mov    %esp,%ebp
     3703:	57                   	push   %edi
     3704:	8b 55 08             	mov    0x8(%ebp),%edx
+}
+
+static inline void
+stosb(void *addr, int data, int cnt)
+{
+  asm volatile("cld; rep stosb" :
     3707:	8b 4d 10             	mov    0x10(%ebp),%ecx
     370a:	8b 45 0c             	mov    0xc(%ebp),%eax
     370d:	89 d7                	mov    %edx,%edi
     370f:	fc                   	cld    
     3710:	f3 aa                	rep stos %al,%es:(%edi)
+  stosb(dst, c, n);
+  return dst;
+}
     3712:	89 d0                	mov    %edx,%eax
     3714:	5f                   	pop    %edi
     3715:	5d                   	pop    %ebp
@@ -4320,14 +4371,20 @@ Disassembly of section .text:
     3719:	8d bc 27 00 00 00 00 	lea    0x0(%edi,%eiz,1),%edi
 
 00003720 <strchr>:
+
+char*
+strchr(const char *s, char c)
+{
     3720:	55                   	push   %ebp
     3721:	89 e5                	mov    %esp,%ebp
     3723:	53                   	push   %ebx
     3724:	8b 45 08             	mov    0x8(%ebp),%eax
     3727:	8b 5d 0c             	mov    0xc(%ebp),%ebx
+  for(; *s; s++)
     372a:	0f b6 10             	movzbl (%eax),%edx
     372d:	84 d2                	test   %dl,%dl
     372f:	74 1d                	je     374e <strchr+0x2e>
+    if(*s == c)
     3731:	38 d3                	cmp    %dl,%bl
     3733:	89 d9                	mov    %ebx,%ecx
     3735:	75 0d                	jne    3744 <strchr+0x24>
@@ -4335,11 +4392,15 @@ Disassembly of section .text:
     3739:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
     3740:	38 ca                	cmp    %cl,%dl
     3742:	74 0c                	je     3750 <strchr+0x30>
+  for(; *s; s++)
     3744:	83 c0 01             	add    $0x1,%eax
     3747:	0f b6 10             	movzbl (%eax),%edx
     374a:	84 d2                	test   %dl,%dl
     374c:	75 f2                	jne    3740 <strchr+0x20>
+      return (char*)s;
+  return 0;
     374e:	31 c0                	xor    %eax,%eax
+}
     3750:	5b                   	pop    %ebx
     3751:	5d                   	pop    %ebp
     3752:	c3                   	ret    
@@ -4347,40 +4408,63 @@ Disassembly of section .text:
     3759:	8d bc 27 00 00 00 00 	lea    0x0(%edi,%eiz,1),%edi
 
 00003760 <gets>:
+
+char*
+gets(char *buf, int max)
+{
     3760:	55                   	push   %ebp
     3761:	89 e5                	mov    %esp,%ebp
     3763:	57                   	push   %edi
     3764:	56                   	push   %esi
     3765:	53                   	push   %ebx
+  int i, cc;
+  char c;
+
+  for(i=0; i+1 < max; ){
     3766:	31 f6                	xor    %esi,%esi
     3768:	89 f3                	mov    %esi,%ebx
+{
     376a:	83 ec 1c             	sub    $0x1c,%esp
     376d:	8b 7d 08             	mov    0x8(%ebp),%edi
+  for(i=0; i+1 < max; ){
     3770:	eb 2f                	jmp    37a1 <gets+0x41>
     3772:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+    cc = read(0, &c, 1);
     3778:	8d 45 e7             	lea    -0x19(%ebp),%eax
     377b:	83 ec 04             	sub    $0x4,%esp
     377e:	6a 01                	push   $0x1
     3780:	50                   	push   %eax
     3781:	6a 00                	push   $0x0
     3783:	e8 32 01 00 00       	call   38ba <read>
+    if(cc < 1)
     3788:	83 c4 10             	add    $0x10,%esp
     378b:	85 c0                	test   %eax,%eax
     378d:	7e 1c                	jle    37ab <gets+0x4b>
+      break;
+    buf[i++] = c;
     378f:	0f b6 45 e7          	movzbl -0x19(%ebp),%eax
     3793:	83 c7 01             	add    $0x1,%edi
     3796:	88 47 ff             	mov    %al,-0x1(%edi)
+    if(c == '\n' || c == '\r')
     3799:	3c 0a                	cmp    $0xa,%al
     379b:	74 23                	je     37c0 <gets+0x60>
     379d:	3c 0d                	cmp    $0xd,%al
     379f:	74 1f                	je     37c0 <gets+0x60>
+  for(i=0; i+1 < max; ){
     37a1:	83 c3 01             	add    $0x1,%ebx
     37a4:	3b 5d 0c             	cmp    0xc(%ebp),%ebx
     37a7:	89 fe                	mov    %edi,%esi
     37a9:	7c cd                	jl     3778 <gets+0x18>
     37ab:	89 f3                	mov    %esi,%ebx
+      break;
+  }
+  buf[i] = '\0';
+  return buf;
+}
     37ad:	8b 45 08             	mov    0x8(%ebp),%eax
+  buf[i] = '\0';
     37b0:	c6 03 00             	movb   $0x0,(%ebx)
+}
     37b3:	8d 65 f4             	lea    -0xc(%ebp),%esp
     37b6:	5b                   	pop    %ebx
     37b7:	5e                   	pop    %esi
@@ -4393,7 +4477,9 @@ Disassembly of section .text:
     37c3:	8b 45 08             	mov    0x8(%ebp),%eax
     37c6:	01 de                	add    %ebx,%esi
     37c8:	89 f3                	mov    %esi,%ebx
+  buf[i] = '\0';
     37ca:	c6 03 00             	movb   $0x0,(%ebx)
+}
     37cd:	8d 65 f4             	lea    -0xc(%ebp),%esp
     37d0:	5b                   	pop    %ebx
     37d1:	5e                   	pop    %esi
@@ -4404,26 +4490,42 @@ Disassembly of section .text:
     37d9:	8d bc 27 00 00 00 00 	lea    0x0(%edi,%eiz,1),%edi
 
 000037e0 <stat>:
+
+int
+stat(const char *n, struct stat *st)
+{
     37e0:	55                   	push   %ebp
     37e1:	89 e5                	mov    %esp,%ebp
     37e3:	56                   	push   %esi
     37e4:	53                   	push   %ebx
+  int fd;
+  int r;
+
+  fd = open(n, O_RDONLY);
     37e5:	83 ec 08             	sub    $0x8,%esp
     37e8:	6a 00                	push   $0x0
     37ea:	ff 75 08             	pushl  0x8(%ebp)
     37ed:	e8 f0 00 00 00       	call   38e2 <open>
+  if(fd < 0)
     37f2:	83 c4 10             	add    $0x10,%esp
     37f5:	85 c0                	test   %eax,%eax
     37f7:	78 27                	js     3820 <stat+0x40>
+    return -1;
+  r = fstat(fd, st);
     37f9:	83 ec 08             	sub    $0x8,%esp
     37fc:	ff 75 0c             	pushl  0xc(%ebp)
     37ff:	89 c3                	mov    %eax,%ebx
     3801:	50                   	push   %eax
     3802:	e8 f3 00 00 00       	call   38fa <fstat>
+  close(fd);
     3807:	89 1c 24             	mov    %ebx,(%esp)
+  r = fstat(fd, st);
     380a:	89 c6                	mov    %eax,%esi
+  close(fd);
     380c:	e8 b9 00 00 00       	call   38ca <close>
+  return r;
     3811:	83 c4 10             	add    $0x10,%esp
+}
     3814:	8d 65 f8             	lea    -0x8(%ebp),%esp
     3817:	89 f0                	mov    %esi,%eax
     3819:	5b                   	pop    %ebx
@@ -4431,30 +4533,45 @@ Disassembly of section .text:
     381b:	5d                   	pop    %ebp
     381c:	c3                   	ret    
     381d:	8d 76 00             	lea    0x0(%esi),%esi
+    return -1;
     3820:	be ff ff ff ff       	mov    $0xffffffff,%esi
     3825:	eb ed                	jmp    3814 <stat+0x34>
     3827:	89 f6                	mov    %esi,%esi
     3829:	8d bc 27 00 00 00 00 	lea    0x0(%edi,%eiz,1),%edi
 
 00003830 <atoi>:
+
+int
+atoi(const char *s)
+{
     3830:	55                   	push   %ebp
     3831:	89 e5                	mov    %esp,%ebp
     3833:	53                   	push   %ebx
     3834:	8b 4d 08             	mov    0x8(%ebp),%ecx
+  int n;
+
+  n = 0;
+  while('0' <= *s && *s <= '9')
     3837:	0f be 11             	movsbl (%ecx),%edx
     383a:	8d 42 d0             	lea    -0x30(%edx),%eax
     383d:	3c 09                	cmp    $0x9,%al
+  n = 0;
     383f:	b8 00 00 00 00       	mov    $0x0,%eax
+  while('0' <= *s && *s <= '9')
     3844:	77 1f                	ja     3865 <atoi+0x35>
     3846:	8d 76 00             	lea    0x0(%esi),%esi
     3849:	8d bc 27 00 00 00 00 	lea    0x0(%edi,%eiz,1),%edi
+    n = n*10 + *s++ - '0';
     3850:	8d 04 80             	lea    (%eax,%eax,4),%eax
     3853:	83 c1 01             	add    $0x1,%ecx
     3856:	8d 44 42 d0          	lea    -0x30(%edx,%eax,2),%eax
+  while('0' <= *s && *s <= '9')
     385a:	0f be 11             	movsbl (%ecx),%edx
     385d:	8d 5a d0             	lea    -0x30(%edx),%ebx
     3860:	80 fb 09             	cmp    $0x9,%bl
     3863:	76 eb                	jbe    3850 <atoi+0x20>
+  return n;
+}
     3865:	5b                   	pop    %ebx
     3866:	5d                   	pop    %ebp
     3867:	c3                   	ret    
@@ -4462,6 +4579,10 @@ Disassembly of section .text:
     3869:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
 
 00003870 <memmove>:
+
+void*
+memmove(void *vdst, const void *vsrc, int n)
+{
     3870:	55                   	push   %ebp
     3871:	89 e5                	mov    %esp,%ebp
     3873:	56                   	push   %esi
@@ -4469,15 +4590,25 @@ Disassembly of section .text:
     3875:	8b 5d 10             	mov    0x10(%ebp),%ebx
     3878:	8b 45 08             	mov    0x8(%ebp),%eax
     387b:	8b 75 0c             	mov    0xc(%ebp),%esi
+  char *dst;
+  const char *src;
+
+  dst = vdst;
+  src = vsrc;
+  while(n-- > 0)
     387e:	85 db                	test   %ebx,%ebx
     3880:	7e 14                	jle    3896 <memmove+0x26>
     3882:	31 d2                	xor    %edx,%edx
     3884:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+    *dst++ = *src++;
     3888:	0f b6 0c 16          	movzbl (%esi,%edx,1),%ecx
     388c:	88 0c 10             	mov    %cl,(%eax,%edx,1)
     388f:	83 c2 01             	add    $0x1,%edx
+  while(n-- > 0)
     3892:	39 d3                	cmp    %edx,%ebx
     3894:	75 f2                	jne    3888 <memmove+0x18>
+  return vdst;
+}
     3896:	5b                   	pop    %ebx
     3897:	5e                   	pop    %esi
     3898:	5d                   	pop    %ebp
