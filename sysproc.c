@@ -7,6 +7,7 @@
 #include "mmu.h"
 #include "proc.h"
 
+#include "pstat.h"
 #include "bf_shared.h"
 
 int
@@ -111,4 +112,18 @@ int
 sys_gettickets(void)
 {
 	return myproc()->tickets;
+}
+
+void
+sys_ps(void)
+{
+	getpstat();	
+//	struct pstat* pst = getpstat();
+//	int slot =0;
+//	while(pst->inuse[slot])
+//	{
+//		cprintf("%d %d %d\n",pst->ticks[slot], pst->tickets[slot], 5);
+//		slot++;
+//	}
+
 }

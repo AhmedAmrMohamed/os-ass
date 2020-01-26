@@ -11,6 +11,7 @@ struct cpu {
 };
 
 extern struct cpu cpus[NCPU];
+//extern struct pstat bfpstat;
 extern int ncpu;
 
 //PAGEBREAK: 17
@@ -50,6 +51,7 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   int tickets;                 // procces tickets
+  int ticks;				   // Number of ticks this process has consumed
 };
 
 // Process memory is laid out contiguously, low addresses first:
