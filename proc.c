@@ -15,7 +15,6 @@ struct {
 
 
 static struct proc *initproc;
-struct pstat *bfpstat;
 int nextpid  = 1;
 int totaltickets = 0;
 extern void forkret(void);
@@ -353,7 +352,7 @@ scheduler(void)
 	}
 	release(&ptable.lock);
 //	cprintf("tk : %d\n",totaltickets);
-
+	  
 	  for(;;)
 	  {
 		 //Enable interrupts on this processor.
@@ -378,7 +377,6 @@ scheduler(void)
 		    c->proc = p;
 		    switchuvm(p);
 		    p->state = RUNNING;
-			p->state++;
 		    swtch(&(c->scheduler), p->context);
 		    switchkvm();
 		
@@ -583,26 +581,6 @@ int mysettickets(int number,int pid)
 	release(&ptable.lock);
 	return -1;
 		
-}
-
-struct pstat*
-getpstat(void)
-{
-  	struct proc *p;
-	acquire(&ptable.lock);
-  	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-	{
-		if(p->state==RUNNING)
-		cprintf("%d %d\n",p->pid,p->tickets);
-	//	if(p->pid != RUNNABLE) continue;
-	//	bfpstat->pid[slot]  = p->pid;
-	//	bfpstat->tickets[slot] = p->tickets;
-	//	bfpstat->ticks[slot] = p->ticks;
-	//	bfpstat->inuse[slot] = 1;
-	//	slot++;
-	}
-	release(&ptable.lock);
-	return bfpstat;
 }
 
 

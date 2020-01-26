@@ -2,10 +2,9 @@
 #include "stat.h"
 #include "user.h"
 int main(void)
-{
-	//int rc = fork();
-//	int rc = 3;
-//
+{ 
+//	int rc = fork();
+
 //	if(rc<0)
 //		printf(1,"noooo");
 //	else if(rc ==0)
@@ -15,7 +14,10 @@ int main(void)
 //		wait();
 //		printf(1,"parent :%d\n",5);
 //	}
-	printf(1,"asd");
-}
 
+	printf(1,"%d\n",gettickets());
+	settickets(5);
+	printf(1,"%d\n",gettickets());
+	exit();
+}
 
