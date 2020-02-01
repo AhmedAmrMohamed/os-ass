@@ -182,6 +182,7 @@ UPROGS=\
 	_wc\
 	_zombie\
 	_bf_ts\
+	_bf_lottery\
 	_writeover\
 
 fs.img: mkfs README $(UPROGS)
@@ -254,7 +255,7 @@ EXTRA=\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
-	.gdbinit.tmpl gdbutil bf_ts.c writeover\
+	.gdbinit.tmpl gdbutil bf_ts.c bf_lottery.c writeover.c\
 
 dist:
 	rm -rf dist

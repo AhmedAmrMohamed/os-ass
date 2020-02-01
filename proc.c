@@ -229,6 +229,7 @@ fork(void)
   acquire(&ptable.lock);
   
   np->tickets = curproc->tickets;
+  totaltickets += np->tickets;
 
   np->state = RUNNABLE;
 

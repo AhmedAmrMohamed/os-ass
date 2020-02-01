@@ -7363,7 +7363,7 @@ myproc(void) {
 80103a2e:	e8 cd fb ff ff       	call   80103600 <allocproc>
 80103a33:	85 c0                	test   %eax,%eax
 80103a35:	89 45 e4             	mov    %eax,-0x1c(%ebp)
-80103a38:	0f 84 bd 00 00 00    	je     80103afb <fork+0xeb>
+80103a38:	0f 84 c3 00 00 00    	je     80103b01 <fork+0xf1>
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
 80103a3e:	83 ec 08             	sub    $0x8,%esp
 80103a41:	ff 33                	pushl  (%ebx)
@@ -7373,24 +7373,26 @@ myproc(void) {
 80103a4d:	83 c4 10             	add    $0x10,%esp
 80103a50:	85 c0                	test   %eax,%eax
 80103a52:	89 47 04             	mov    %eax,0x4(%edi)
-80103a55:	0f 84 a7 00 00 00    	je     80103b02 <fork+0xf2>
+80103a55:	0f 84 ad 00 00 00    	je     80103b08 <fork+0xf8>
   np->sz = curproc->sz;
 80103a5b:	8b 03                	mov    (%ebx),%eax
-80103a5d:	8b 4d e4             	mov    -0x1c(%ebp),%ecx
-80103a60:	89 01                	mov    %eax,(%ecx)
-  np->parent = curproc;
-80103a62:	89 59 14             	mov    %ebx,0x14(%ecx)
-80103a65:	89 c8                	mov    %ecx,%eax
+80103a5d:	8b 55 e4             	mov    -0x1c(%ebp),%edx
   *np->tf = *curproc->tf;
-80103a67:	8b 79 18             	mov    0x18(%ecx),%edi
-80103a6a:	8b 73 18             	mov    0x18(%ebx),%esi
-80103a6d:	b9 13 00 00 00       	mov    $0x13,%ecx
-80103a72:	f3 a5                	rep movsl %ds:(%esi),%es:(%edi)
+80103a60:	b9 13 00 00 00       	mov    $0x13,%ecx
+  np->sz = curproc->sz;
+80103a65:	89 02                	mov    %eax,(%edx)
+  np->parent = curproc;
+80103a67:	89 5a 14             	mov    %ebx,0x14(%edx)
+  *np->tf = *curproc->tf;
+80103a6a:	8b 7a 18             	mov    0x18(%edx),%edi
+80103a6d:	8b 73 18             	mov    0x18(%ebx),%esi
+80103a70:	f3 a5                	rep movsl %ds:(%esi),%es:(%edi)
   for(i = 0; i < NOFILE; i++)
-80103a74:	31 f6                	xor    %esi,%esi
+80103a72:	31 f6                	xor    %esi,%esi
   np->tf->eax = 0;
-80103a76:	8b 40 18             	mov    0x18(%eax),%eax
-80103a79:	c7 40 1c 00 00 00 00 	movl   $0x0,0x1c(%eax)
+80103a74:	8b 42 18             	mov    0x18(%edx),%eax
+80103a77:	c7 40 1c 00 00 00 00 	movl   $0x0,0x1c(%eax)
+80103a7e:	66 90                	xchg   %ax,%ax
     if(curproc->ofile[i])
 80103a80:	8b 44 b3 28          	mov    0x28(%ebx,%esi,4),%eax
 80103a84:	85 c0                	test   %eax,%eax
@@ -7399,9 +7401,9 @@ myproc(void) {
 80103a88:	83 ec 0c             	sub    $0xc,%esp
 80103a8b:	50                   	push   %eax
 80103a8c:	e8 5f d3 ff ff       	call   80100df0 <filedup>
-80103a91:	8b 55 e4             	mov    -0x1c(%ebp),%edx
+80103a91:	8b 4d e4             	mov    -0x1c(%ebp),%ecx
 80103a94:	83 c4 10             	add    $0x10,%esp
-80103a97:	89 44 b2 28          	mov    %eax,0x28(%edx,%esi,4)
+80103a97:	89 44 b1 28          	mov    %eax,0x28(%ecx,%esi,4)
   for(i = 0; i < NOFILE; i++)
 80103a9b:	83 c6 01             	add    $0x1,%esi
 80103a9e:	83 fe 10             	cmp    $0x10,%esi
@@ -7428,44 +7430,45 @@ myproc(void) {
 80103ac9:	c7 04 24 40 2d 11 80 	movl   $0x80112d40,(%esp)
 80103ad0:	e8 9b 0a 00 00       	call   80104570 <acquire>
   np->tickets = curproc->tickets;
-80103ad5:	8b 43 7c             	mov    0x7c(%ebx),%eax
+80103ad5:	8b 53 7c             	mov    0x7c(%ebx),%edx
   np->state = RUNNABLE;
 80103ad8:	c7 47 0c 03 00 00 00 	movl   $0x3,0xc(%edi)
+  totaltickets += np->tickets;
+80103adf:	01 15 b8 a5 10 80    	add    %edx,0x8010a5b8
   np->tickets = curproc->tickets;
-80103adf:	89 47 7c             	mov    %eax,0x7c(%edi)
+80103ae5:	89 57 7c             	mov    %edx,0x7c(%edi)
   release(&ptable.lock);
-80103ae2:	c7 04 24 40 2d 11 80 	movl   $0x80112d40,(%esp)
-80103ae9:	e8 42 0b 00 00       	call   80104630 <release>
+80103ae8:	c7 04 24 40 2d 11 80 	movl   $0x80112d40,(%esp)
+80103aef:	e8 3c 0b 00 00       	call   80104630 <release>
   return pid;
-80103aee:	83 c4 10             	add    $0x10,%esp
+80103af4:	83 c4 10             	add    $0x10,%esp
 }
-80103af1:	8d 65 f4             	lea    -0xc(%ebp),%esp
-80103af4:	89 f0                	mov    %esi,%eax
-80103af6:	5b                   	pop    %ebx
-80103af7:	5e                   	pop    %esi
-80103af8:	5f                   	pop    %edi
-80103af9:	5d                   	pop    %ebp
-80103afa:	c3                   	ret    
+80103af7:	8d 65 f4             	lea    -0xc(%ebp),%esp
+80103afa:	89 f0                	mov    %esi,%eax
+80103afc:	5b                   	pop    %ebx
+80103afd:	5e                   	pop    %esi
+80103afe:	5f                   	pop    %edi
+80103aff:	5d                   	pop    %ebp
+80103b00:	c3                   	ret    
     return -1;
-80103afb:	be ff ff ff ff       	mov    $0xffffffff,%esi
-80103b00:	eb ef                	jmp    80103af1 <fork+0xe1>
+80103b01:	be ff ff ff ff       	mov    $0xffffffff,%esi
+80103b06:	eb ef                	jmp    80103af7 <fork+0xe7>
     kfree(np->kstack);
-80103b02:	8b 5d e4             	mov    -0x1c(%ebp),%ebx
-80103b05:	83 ec 0c             	sub    $0xc,%esp
+80103b08:	8b 5d e4             	mov    -0x1c(%ebp),%ebx
+80103b0b:	83 ec 0c             	sub    $0xc,%esp
     return -1;
-80103b08:	be ff ff ff ff       	mov    $0xffffffff,%esi
+80103b0e:	be ff ff ff ff       	mov    $0xffffffff,%esi
     kfree(np->kstack);
-80103b0d:	ff 73 08             	pushl  0x8(%ebx)
-80103b10:	e8 fb e7 ff ff       	call   80102310 <kfree>
+80103b13:	ff 73 08             	pushl  0x8(%ebx)
+80103b16:	e8 f5 e7 ff ff       	call   80102310 <kfree>
     np->kstack = 0;
-80103b15:	c7 43 08 00 00 00 00 	movl   $0x0,0x8(%ebx)
+80103b1b:	c7 43 08 00 00 00 00 	movl   $0x0,0x8(%ebx)
     np->state = UNUSED;
-80103b1c:	c7 43 0c 00 00 00 00 	movl   $0x0,0xc(%ebx)
+80103b22:	c7 43 0c 00 00 00 00 	movl   $0x0,0xc(%ebx)
     return -1;
-80103b23:	83 c4 10             	add    $0x10,%esp
-80103b26:	eb c9                	jmp    80103af1 <fork+0xe1>
-80103b28:	90                   	nop
-80103b29:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+80103b29:	83 c4 10             	add    $0x10,%esp
+80103b2c:	eb c9                	jmp    80103af7 <fork+0xe7>
+80103b2e:	66 90                	xchg   %ax,%ax
 
 80103b30 <scheduler>:
 {
