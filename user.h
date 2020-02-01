@@ -26,6 +26,7 @@ int uptime(void);
 int getreadcount(void);
 int settickets(int);
 int gettickets();
+int getpinfo(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

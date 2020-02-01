@@ -13,6 +13,16 @@ int main(void)
 		wait();
 		printf(1,"parent : %d\n",gettickets());
 	}
+	rc = fork();
+	rc = fork();
+	rc = fork();
+	printf(1,"-----------------ps-------------\n");
+	if(rc > 0)
+	{
+		wait();
+		getpinfo();
+	}
+
 	exit();
 }
 

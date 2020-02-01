@@ -106,6 +106,7 @@ extern int sys_uptime(void);
 extern int sys_getreadcount(void);
 extern int sys_settickets(void);
 extern int sys_gettickets(void); // yet to be implemented...
+extern int sys_getpinfo(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -132,6 +133,7 @@ static int (*syscalls[])(void) = {
 [SYS_getreadcount] sys_getreadcount,
 [SYS_settickets]   sys_settickets,
 [SYS_gettickets]   sys_gettickets,
+[SYS_getpinfo]     sys_getpinfo,
 };
 
 void

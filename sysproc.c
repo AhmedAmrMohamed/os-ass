@@ -112,3 +112,11 @@ sys_gettickets(void)
 {
 	return myproc()->tickets;
 }
+
+int
+sys_getpinfo(void)
+{
+	fillpstate();
+	return 1;
+}
+

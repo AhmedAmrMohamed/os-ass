@@ -23,3 +23,4 @@
 #define SYS_getreadcount 22
 #define SYS_settickets 23
 #define SYS_gettickets 24
+#define SYS_getpinfo 25

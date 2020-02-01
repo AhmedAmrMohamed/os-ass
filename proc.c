@@ -378,6 +378,7 @@ scheduler(void)
 		    c->proc = p;
 		    switchuvm(p);
 		    p->state = RUNNING;
+			p->ticks +=1;
 		    swtch(&(c->scheduler), p->context);
 		    switchkvm();
 		
@@ -590,3 +591,15 @@ int
 gettotaltickets()
 { return totaltickets;}
 
+void
+fillpstate()
+{
+	struct proc *p;
+	acquire(&ptable.lock);
+	cprintf("pid\tticks\ttickets\n");
+	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+		//if(p->state == RUNNING)
+		if(p->state == RUNNABLE)
+			cprintf("%d\t%d\t%d\n",p->pid,p->ticks,p->tickets);
+	release(&ptable.lock);
+}
