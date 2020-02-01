@@ -103,7 +103,7 @@ found:
   p->tickets = 1;
   totaltickets++;
   release(&ptable.lock);
-  //cprintf("pid %d, tics %d, tk %d\n",p->pid,p->tickets,totaltickets);
+  cprintf("alloc : pid %d, tics %d, tk %d\n",p->pid,p->tickets,totaltickets);
 
   // Allocate kernel stack.
   if((p->kstack = kalloc()) == 0){
@@ -259,8 +259,8 @@ exit(void)
   }
 
   //remove this proc tickets
-  totaltickets -= 1+(curproc->tickets);
-  //cprintf("*pid %d, tics %d,tk %d\n",curproc->pid,curproc->tickets,totaltickets);
+  totaltickets -= (curproc->tickets);
+  cprintf("exit: pid %d, tics %d,tk %d\n",curproc->pid,curproc->tickets,totaltickets);
 
   begin_op();
   iput(curproc->cwd);
@@ -351,7 +351,7 @@ scheduler(void)
 			totaltickets++;
 	}
 	release(&ptable.lock);
-//	cprintf("tk : %d\n",totaltickets);
+	cprintf("tk : %d\n",totaltickets);
 	  
 	  for(;;)
 	  {
@@ -360,7 +360,7 @@ scheduler(void)
 		 acquire(&ptable.lock);
 	     int ticketwin = randomint();
 		 int ticketcnt = 0;
-	//	cprintf("tt %d tw %d\n",totaltickets,randomint());
+//		cprintf("tw %d tk %d \n",ticketwin,totaltickets);
 		 for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
 		 {
 	//		cprintf("what\n");
@@ -588,3 +588,4 @@ int mysettickets(int number,int pid)
 int
 gettotaltickets()
 { return totaltickets;}
+
